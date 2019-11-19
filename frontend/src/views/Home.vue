@@ -5,7 +5,9 @@
 </template>
 
 <script>
+
 import Lists from '../components/Lists';
+import axios from 'axios';
 
 export default {
   name: "Home",
@@ -14,25 +16,23 @@ export default {
   },
   data() {
     return {
-      lists: [
-        {
-          id: 1,
-          name: 'List One',
-          author: 'Jane Doe',
-          description: 'My first list',
-          created: 'not yet',
-          modified: 'not yet'
-        },
-        {
-          id: 2,
-          name: 'List Two',
-          author: 'John Smith',
-          description: 'Spanish vocabulary',
-          created: 'not yet',
-          modified: 'not yet'
-        }
-      ]
+      lists: []
     }
+  },
+  methods: {
+    getLists() {
+      const path = 'http://localhost:5000/lists/';
+      axios.get(path)
+        .then((res) => {
+          this.lists = res.data;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  },
+  created() {
+    this.getLists();
   }
 }
 </script>

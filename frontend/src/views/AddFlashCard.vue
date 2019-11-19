@@ -15,6 +15,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
     name: "AddFlashCard",
     components: {
@@ -29,7 +31,7 @@ export default {
     methods: {
         addCard(e) {
             e.preventDefault(); //don't have form submit to a file
-            //TODO- Add card using the database
+
             console.log(this.$route);
             this.$router.push({name: 'list', params: { id: this.$route.params.id }} );
         }
