@@ -11,6 +11,29 @@ from dotenv import load_dotenv
 def lists():
     return jsonify(LISTS)
 
+@app.route('/list/<int:id>')
+@app.route('/list/<int:id>/')
+def list(id):
+    for list in LISTS:
+        if list['id'] == id:
+            return jsonify(list)
+    return None
+
+@app.route('/addlist', methods=['POST'])
+@app.route('/addlist/', methods=['POST'])
+def add_list():
+    post_data = request.get_json()
+    list = {
+        'id': len(LISTS) + 1,
+        'name': post_data.get('name'),
+        'author': post_data.get('author'),
+        'description':  post_data.get('description'),
+        'created': date.today(),
+        'modified': date.today()
+    }
+    LISTS.append(list)
+    return jsonify(list, 201) # Add get location to newly created post
+
 @app.route('/cards')
 @app.route('/cards/')
 def cards():

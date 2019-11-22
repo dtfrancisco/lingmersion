@@ -3,11 +3,12 @@
         <!-- <h3>Your Lists</h3>
         <h3>Recently Created Lists</h3>
         <h3>Most Liked/Viewed Lists</h3> -->
+        <router-link :to="{name: 'add list'}" >Create new list </router-link>
         <div v-bind:key="list.id" v-for="list in lists">
             <ListItem v-bind:list="list"/>
         </div>
     </div>
-</template>
+</template> 
 
 <script>
 import ListItem from './ListItem';

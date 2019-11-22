@@ -18,6 +18,7 @@
 
 <script>
 import FlashCards from '../components/FlashCards';
+import axios from 'axios';
 
 export default {
     name: "ListView",
@@ -26,12 +27,28 @@ export default {
     },
     data() {
         return {
-            list: this.$route.params.list,
-            name: this.$route.params.list.name,
-            author: this.$route.params.list.author
+            id: this.$route.params.id,
+            list: '',
+            name: '',
+            author: ''
         }
     },
     methods: {
+        getList() {
+            this.id = this.$route.params.id;
+
+            const path = `http://localhost:5000/list/${this.id}`;
+
+            axios.get(path)
+            .then((res) => {
+                this.list = res.data;
+                this.name = this.list.name;
+                this.author = this.list.author;
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+        },
         updateList() {
             const updatedList = {
                 id: this.list.id,
@@ -44,9 +61,10 @@ export default {
             // Send up to parent
             this.$emit('edit-list', updatedList);
         }
+    },
+    created() {
+        this.getList();
     }
-    // created() {
-    // },
 }
 </script>
 

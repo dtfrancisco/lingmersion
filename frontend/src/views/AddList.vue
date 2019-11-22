@@ -1,13 +1,17 @@
 <template>
     <div>
-        <form @submit="addCard">
+        <form @submit="addList">
             <div>
-                <p>Term</p>
-                <input class="inputbox" type="inputbox" v-model="term">
+                <p>Name</p>
+                <input class="inputbox" type="inputbox" v-model="name" placeholder="Insert name of list here">
+            </div>
+            <div>
+                <p>Author</p>
+                <input class="inputbox" type="inputbox" v-model="author" placeholder="Insert author here">
             </div>
             <div>
                 <p>Description</p>
-                <input class="inputbox" type="inputbox" v-model="description">
+                <input class="inputbox" type="inputbox" v-model="description" placeholder="Insert description here">
             </div>
             <input type="submit" value="Submit" class="btn">
         </form>
@@ -18,28 +22,27 @@
 import axios from 'axios';
 
 export default {
-    name: "AddFlashCard",
+    name: "AddList",
     components: {
 
     },
     data() {
         return {
-            term: 'hello',
-            description: 'Insert description here'
+            name: '',
+            author: '',
+            description: '',
         }
     },
     methods: {
-        addCard(e) {
+        addList(e) {
             e.preventDefault(); //don't have form submit to a file
 
-            const path = 'http://localhost:5000/addcard/';
+            const path = 'http://localhost:5000/addlist/';
 
             const payload = {
-                id: this.$route.params.id,
-                author: 'sample',
-                term: this.term,
+                name: this.name,
+                author: this.author,
                 description: this.description,
-                language: 'portuguese'
             };
 
             axios.post(path, payload)
@@ -50,7 +53,7 @@ export default {
             });
 
             console.log("Route ", this.$route);
-            this.$router.push({name: 'list', params: { id: this.$route.params.id }} );
+            this.$router.push({name: 'home'} );
         }
     }
 }

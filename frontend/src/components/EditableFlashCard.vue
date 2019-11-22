@@ -1,7 +1,6 @@
 <template>
     <div>
-        <div>
-            <p>Term</p>
+        <td>
             <input class="inputbox" type="inputbox" v-model="term" v-on:change="updateCard">
             <div v-if="audio">
                 <audio
@@ -11,15 +10,10 @@
                 </audio>
             </div>
 
-            <p>
-                <a href="https://forvo.com/" title="Pronunciations by Forvo"><img src="https://api.forvo.com/byforvoblue.gif" 
-                width="120" height="40" alt="Pronunciations by Forvo" style="border:0" /></a>
-            </p>
-        </div>
-        <div>
-            <p>Description</p>
+        </td>
+        <td>
             <input class="inputbox" type="inputbox" v-model="description" v-on:change="updateCard">
-        </div>
+        </td>
     </div>
 
 </template>
