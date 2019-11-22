@@ -24,7 +24,7 @@ export default {
     },
     data() {
         return {
-            term: 'Insert text here',
+            term: 'hello',
             description: 'Insert description here'
         }
     },
@@ -32,8 +32,25 @@ export default {
         addCard(e) {
             e.preventDefault(); //don't have form submit to a file
 
-            console.log(this.$route);
-            this.$router.push({name: 'list', params: { id: this.$route.params.id }} );
+            const path = 'http://localhost:5000/addcard/';
+
+            const payload = {
+                id: this.$route.params.id,
+                author: 'sample',
+                term: this.term,
+                description: this.description,
+                language: 'portuguese'
+            };
+
+            axios.post(path, payload)
+            .then(() => {
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+
+            console.log("Route ", this.$route);
+            // this.$router.push({name: 'list', params: { id: this.$route.params.id }} );
         }
     }
 }
