@@ -1,7 +1,7 @@
 <template>
     <header class="header">
-        <h1>Lingmersion</h1>
-        <div id="nav">
+        <h1 class="mt-2">Lingmersion</h1>
+        <div class="mb-2" id="nav">
             <router-link to="/">Home</router-link> |
             <router-link to="/about">About</router-link>
         </div>
@@ -16,14 +16,13 @@ export default {
 
 <style scoped>
     .header {
-        background: #333;
+        background: #42b983;
         color: #fff;
-        text-align: center;
-        padding: 10px;
+        padding: 5px;
     }
 
     .header a {
-        color: #fff;
+        color: #333;
         padding-right: 5px;
     }
 </style>

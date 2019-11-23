@@ -1,13 +1,13 @@
 <template>
-    <div>
-        <p>
+    <div class="container">
+        <div class="mt-1 mb-1">
             Name
-        </p>
+        </div>
         <input class="inputbox" type="inputbox" v-model="name" v-on:change="updateList">
 
-        <p>
+        <div class="mt-1 mb-1">
             Author
-        </p>
+        </div>
         <input class="inputbox" type="inputbox" v-model="author" v-on:change="updateList">
 
         <div class="cards">

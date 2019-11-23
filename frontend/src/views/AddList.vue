@@ -2,18 +2,24 @@
     <div>
         <form @submit="addList">
             <div>
-                <p>Name</p>
+                <div class="mt-1 mb-1">
+                    Name
+                </div>
                 <input class="inputbox" type="inputbox" v-model="name" placeholder="Insert name of list here">
             </div>
             <div>
-                <p>Author</p>
+                <div class="mt-1 mb-1">
+                    Author
+                </div>
                 <input class="inputbox" type="inputbox" v-model="author" placeholder="Insert author here">
             </div>
             <div>
-                <p>Description</p>
+                <div class="mt-1 mb-1">
+                    Description
+                </div>
                 <input class="inputbox" type="inputbox" v-model="description" placeholder="Insert description here">
             </div>
-            <input type="submit" value="Submit" class="btn">
+            <input type="submit" value="Submit" class="btn btn-primary mt-3">
         </form>
     </div>   
 </template>
@@ -52,7 +58,6 @@ export default {
                 console.error(error);
             });
 
-            console.log("Route ", this.$route);
             this.$router.push({name: 'home'} );
         }
     }

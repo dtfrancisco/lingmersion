@@ -2,14 +2,18 @@
     <div>
         <form @submit="addCard">
             <div>
-                <p>Term</p>
-                <input class="inputbox" type="inputbox" v-model="term">
+                <div class="mt-1 mb-1">
+                    Term
+                </div>
+                <input class="inputbox" type="inputbox" v-model="term" placeholder="Add term here">
             </div>
             <div>
-                <p>Description</p>
-                <input class="inputbox" type="inputbox" v-model="description">
+                <div class="mt-1 mb-1">
+                    Description
+                </div>
+                <input class="inputbox" type="inputbox" v-model="description" placeholder="Insert description here">
             </div>
-            <input type="submit" value="Submit" class="btn">
+            <input type="submit" value="Submit" class="btn btn-primary mt-3">
         </form>
     </div>   
 </template>
@@ -24,8 +28,8 @@ export default {
     },
     data() {
         return {
-            term: 'hello',
-            description: 'Insert description here'
+            term: '',
+            description: ''
         }
     },
     methods: {
@@ -49,7 +53,6 @@ export default {
                 console.error(error);
             });
 
-            console.log("Route ", this.$route);
             this.$router.push({name: 'list', params: { id: this.$route.params.id }} );
         }
     }

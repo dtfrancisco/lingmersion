@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="container">
         <td>
             <input class="inputbox" type="inputbox" v-model="term" v-on:change="updateCard">
             <div v-if="audio">

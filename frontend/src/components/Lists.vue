@@ -1,11 +1,19 @@
 <template>
-    <div>
-        <!-- <h3>Your Lists</h3>
-        <h3>Recently Created Lists</h3>
-        <h3>Most Liked/Viewed Lists</h3> -->
-        <router-link :to="{name: 'add list'}" >Create new list </router-link>
-        <div v-bind:key="list.id" v-for="list in lists">
-            <ListItem v-bind:list="list"/>
+    <div class="container">
+        <router-link class="btn btn-primary mt-3 mb-3" :to="{name: 'add list'}" >Create new list </router-link>
+        <div class="row">
+            <div class="col-md-4 col-sm-4">
+                <h5>Your Lists</h5>
+            </div>
+             <div class="col-md-4 col-sm-4">
+                <h5>Most Liked/Viewed Lists</h5>
+            </div>
+            <div class="col-md-4 col-sm-4">
+                <h5>Recently Created Lists</h5>
+                <div v-bind:key="list.id" v-for="list in lists">
+                    <ListItem v-bind:list="list"/>
+                </div>
+            </div>
         </div>
     </div>
 </template> 

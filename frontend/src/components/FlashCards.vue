@@ -1,24 +1,25 @@
 <template>
-    <div>
-        <router-link :to="{name: 'add card', params: { id: listId }}" >Create new card </router-link>
+    <div class="container">
+        <router-link class="btn btn-primary mt-3 mb-3" :to="{name: 'add card', params: { id: listId }}" >Create new card </router-link>
 
-        <div class="editable-flash-cards">
-            <table>
+        <table class="table">
+            <tr>
+                <th>Term</th>
+                <th>Description</th>
+            </tr>
+ 
+
+            <div v-bind:key="card.id" v-for="card in cardsInList">
                 <tr>
-                    <th>Term</th>
-                    <th>Description</th>
+                    <EditableFlashCard v-bind:card="card" v-on:edit-card="updateCard"/>
                 </tr>
-                <div v-bind:key="card.id" v-for="card in cardsInList">
-                    <tr>
-                        <EditableFlashCard v-bind:card="card" v-on:edit-card="updateCard"/>
-                    </tr>
-                </div>
-            </table>
-            <p>
-                <a href="https://forvo.com/" title="Pronunciations by Forvo"><img src="https://api.forvo.com/byforvoblue.gif" 
-                width="120" height="40" alt="Pronunciations by Forvo" style="border:0" /></a>
-            </p>
-        </div>
+            </div>
+
+        </table>
+        <p>
+            <a href="https://forvo.com/" title="Pronunciations by Forvo"><img src="https://api.forvo.com/byforvoblue.gif" 
+            width="120" height="40" alt="Pronunciations by Forvo" style="border:0" /></a>
+        </p>
     </div>
 </template>
 
