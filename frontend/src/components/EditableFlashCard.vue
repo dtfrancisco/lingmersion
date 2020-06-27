@@ -2,10 +2,9 @@
     <div class="container">
         <td>
             <input class="inputbox" type="inputbox" v-model="term" v-on:change="updateCard">
-            <div v-if="audio">
-                <audio
-                    controls
-                    src: ="audio">
+            <div>
+                <audio controls v-on:mouseover="loadAudioTrack" ref="audio">
+                    <source v-bind:src ="audio" type="audio/mp3"/>
                     Play audio
                 </audio>
             </div>
@@ -30,7 +29,8 @@ export default {
         return {
             term: this.card.term,
             description: this.card.description,
-            audio: ''
+            audio: '',
+            audio_loaded: false
         }
     },
     methods: {
@@ -68,6 +68,14 @@ export default {
             .catch((error) => {
               console.error(error);
             });
+        },
+        loadAudioTrack() {
+            if (!this.audio_loaded) {
+                console.log('Loading audio track');
+                this.$refs.audio.pause();
+                this.$refs.audio.load();
+                this.audio_loaded = true;
+            }
         }
     },
     created() {

@@ -64,12 +64,12 @@ def get_audio(word, language):
     languages = {
         "english": 39,
         "spanish": 41,
-        "portuguese": 113
+        "portuguese": 133
     }
     id = languages[language]
 
     load_dotenv()
-    api_key = os.getenv('FORVO_API_KEY')
+    api_key = os.environ.get('FORVO_API_KEY')
 
     forvo_req_path = f"https://apifree.forvo.com/action/word-pronunciations/format/json/word/{word}/id_lang_speak/{id}/order/rate-desc/limit/1/key/{api_key}/" 
     r = requests.get(forvo_req_path)
