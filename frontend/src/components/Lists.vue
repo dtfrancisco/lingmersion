@@ -1,7 +1,7 @@
 <template>
     <div class="container">
-        <router-link class="btn btn-primary mt-3 mb-3" :to="{name: 'add list'}" >Create new list </router-link>
-        <div class="row">
+        <router-link class="btn btn-primary mt-4 mb-3" :to="{name: 'add list'}" >Create new list </router-link>
+        <div class="row mt-4">
             <div class="col-md-4 col-sm-4">
                 <h5>Your Lists</h5>
             </div>

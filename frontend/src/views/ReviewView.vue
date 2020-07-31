@@ -1,15 +1,12 @@
 <template>
     <div class="container">
-        <div class="mt-1 mb-1">
-            Name
-        </div>
-        <input class="inputbox" type="inputbox" v-model="name" v-on:change="updateList">
+        <h3 class="mt-3 mb-5">
+            {{name}} by {{author}}
+        </h3>
 
-        <div class="mt-1 mb-1">
-            Author
+        <div v-if="currentCardLoaded" class="current_card">
+            <ReviewFlashCard v-bind:listId="this.list.id" v-bind:card="currentCard"/>
         </div>
-        <input class="inputbox" type="inputbox" v-model="author" v-on:change="updateList">
-
         <div class="cards">
             <ListFlashCards v-bind:listId="this.list.id"/>
         </div>
@@ -17,16 +14,21 @@
 </template>
 
 <script>
+import ReviewFlashCard from '../components/ReviewFlashCard';
 import ListFlashCards from '../components/ListFlashCards';
 import axios from 'axios';
 
 export default {
-    name: "ListView",
+    name: "ReviewView",
     components: {
+        ReviewFlashCard,
         ListFlashCards
     },
     data() {
         return {
+            currentCard: '', //Filled in by loadCurrentCardFromId method
+            currentCardLoaded: false,
+            cardId: 1,
             id: this.$route.params.id,
             list: '',
             name: '',
@@ -50,7 +52,7 @@ export default {
             });
         },
         updateList() {
-            const updatedList = {
+                const updatedList = {
                 id: this.list.id,
                 name: this.name,
                 author: this.author,
@@ -60,12 +62,26 @@ export default {
             }
             // Send up to parent
             this.$emit('edit-list', updatedList);
-        }
+        },
+        loadCurrentCardFromId() {
+            const path = `http://localhost:5000/list/${this.id}/card/${this.cardId}`;
+
+            axios.get(path)
+            .then((res) => {
+                this.currentCard = res.data;
+                this.currentCardLoaded = true;
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+        },
     },
     created() {
         this.getList();
+        this.loadCurrentCardFromId();
     }
 }
+
 </script>
 
 <style scoped>

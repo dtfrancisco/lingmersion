@@ -1,6 +1,7 @@
 <template>
     <div class="container">
-        <router-link class="btn btn-primary mt-3 mb-3" :to="{name: 'add card', params: { id: listId }}" >Create new card </router-link>
+        <router-link class="btn btn-primary mt-3 mb-3 mr-3" :to="{name: 'add card', params: { id: listId }}" >Create new card </router-link>
+        <router-link class="btn btn-primary mt-3 mb-3" :to="{name: 'review cards', params: { id: listId, cards: cardsInList}}" >Review cards</router-link>
 
         <table class="table">
             <tr>
@@ -29,7 +30,7 @@ import EditableFlashCard from './EditableFlashCard';
 import axios from 'axios';
 
 export default {
-    name: "FlashCards",
+    name: "ListFlashCards",
     components: {
         EditableFlashCard
     },

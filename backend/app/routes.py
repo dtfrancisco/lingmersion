@@ -39,6 +39,15 @@ def add_list():
 def cards():
     return jsonify(CARDS)
 
+@app.route('/list/<int:listId>/card/<int:cardId>')
+@app.route('/list/<int:listId>/card/<int:cardId>/')
+def get_card(listId, cardId):
+    for card in CARDS:
+        if listId == card['listId']:
+            if cardId == card['cardId']:
+                return jsonify(card)
+    return None
+
 @app.route('/addcard', methods=['POST'])
 @app.route('/addcard/', methods=['POST'])
 def add_card():
