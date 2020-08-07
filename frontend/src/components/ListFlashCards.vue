@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <router-link class="btn btn-primary mt-3 mb-3 mr-3" :to="{name: 'add card', params: { id: listId }}" >Create new card </router-link>
-        <router-link class="btn btn-primary mt-3 mb-3" :to="{name: 'review cards', params: { id: listId, cards: cardsInList}}" >Review cards</router-link>
+        <router-link class="btn btn-primary mt-3 mb-3" :to="{name: 'review cards', params: { id: listId, cards: cards}}" >Review cards</router-link>
 
         <table class="table">
             <tr>
@@ -10,9 +10,9 @@
             </tr>
  
 
-            <div v-bind:key="card.id" v-for="card in cardsInList">
+            <div v-bind:key="card.id" v-for="card in cards">
                 <tr>
-                    <EditableFlashCard v-bind:card="card" v-on:edit-card="updateCard"/>
+                    <EditableFlashCard v-bind:card="card" v-on:edit-card="editCard"/>
                 </tr>
             </div>
 
@@ -27,43 +27,17 @@
 <script>
 
 import EditableFlashCard from './EditableFlashCard';
-import axios from 'axios';
 
 export default {
     name: "ListFlashCards",
     components: {
         EditableFlashCard
     },
-    props: ["listId"],
-    data() {
-        return {
-            cards: []
-        }
-    },
-    computed: {
-        cardsInList() {
-            return this.cards.filter(card => card.listId === this.listId);
-        }
-    },
+    props: ["cards", "listId"],
     methods: {
-        getCards() {
-            const path = 'http://localhost:5000/cards/';
-            axios.get(path)
-            .then((res) => {
-                this.cards = res.data;
-            })
-            .catch((error) => {
-                console.error(error);
-            });
-        },
-        updateCard(updatedCard) {
-            this.updatedCards = this.cards.filter(card => updatedCard.cardId !== card.cardId);
-            this.updatedCards.push(updatedCard);
-            this.cards = this.updatedCards;
+        editCard(updatedCard) {
+            this.$emit('edit-card', updatedCard);
         }
-    },
-    created() {
-        this.getCards();
     }
 }
 </script>

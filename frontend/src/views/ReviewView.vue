@@ -5,10 +5,10 @@
         </h3>
 
         <div v-if="currentCardLoaded" class="current_card">
-            <ReviewFlashCard v-bind:listId="this.list.id" v-bind:card="currentCard"/>
+            <ReviewFlashCard v-bind:validNextCards="this.validNextCards" v-bind:card="currentCard" v-on:fetch-new-review-flashcard="fetchNewCard"/>
         </div>
         <div class="cards">
-            <ListFlashCards v-bind:listId="this.list.id"/>
+            <ListFlashCards v-bind:cards="cards" v-bind:listId="this.list.id" v-on:edit-card="updateCard"/>
         </div>
     </div>
 </template>
@@ -26,16 +26,32 @@ export default {
     },
     data() {
         return {
+            cards: [],
             currentCard: '', //Filled in by loadCurrentCardFromId method
             currentCardLoaded: false,
             cardId: 1,
             id: this.$route.params.id,
             list: '',
             name: '',
+            validNextCards: [false, false],
             author: ''
         }
     },
     methods: {
+        getCards() {
+            const path = `http://localhost:5000/cards/list/${this.id}`;
+            axios.get(path)
+            .then((res) => {
+                this.cards = res.data;
+
+                this.updateValidNextCards();
+
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+
+        },
         getList() {
             this.id = this.$route.params.id;
 
@@ -75,9 +91,48 @@ export default {
                 console.error(error);
             });
         },
+        fetchNewCard(newCardId) {
+            this.currentCardLoaded = false;
+            this.cardId = newCardId;
+            this.updateValidNextCards();
+            this.loadCurrentCardFromId();
+        },
+        updateValidNextCards() {
+            if (this.cardId == 1) {
+                this.validNextCards[0] = false;
+            }
+            else if (this.cardId > 1) {
+                this.validNextCards[0] = true;
+            }
+
+            if (this.cardId == this.cards.length) {
+                this.validNextCards[1] = false;
+            }
+            else {
+                this.validNextCards[1] = true;
+            }
+        },
+        updateCard(updatedCard) {
+            this.oldCard = this.cards.filter(card => updatedCard.cardId == card.cardId);
+            this.cards.pop(this.oldCard);
+            this.cards.push(updatedCard);
+
+            // const path = `http://localhost:5000/cards/${this.id}/`;
+
+            // axios.get(path)
+            // .then((res) => {
+            //     this.list = res.data;
+            //     this.name = this.list.name;
+            //     this.author = this.list.author;
+            // })
+            // .catch((error) => {
+            //     console.error(error);
+            // });
+        }
     },
     created() {
         this.getList();
+        this.getCards();
         this.loadCurrentCardFromId();
     }
 }

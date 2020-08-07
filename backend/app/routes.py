@@ -8,12 +8,12 @@ from dotenv import load_dotenv
 
 @app.route('/lists')
 @app.route('/lists/')
-def lists():
+def get_lists():
     return jsonify(LISTS)
 
 @app.route('/list/<int:id>')
 @app.route('/list/<int:id>/')
-def list(id):
+def get_list(id):
     for list in LISTS:
         if list['id'] == id:
             return jsonify(list)
@@ -34,19 +34,31 @@ def add_list():
     LISTS.append(list)
     return jsonify(list, 201) # Add get location to newly created post
 
-@app.route('/cards')
-@app.route('/cards/')
-def cards():
-    return jsonify(CARDS)
-
-@app.route('/list/<int:listId>/card/<int:cardId>')
-@app.route('/list/<int:listId>/card/<int:cardId>/')
-def get_card(listId, cardId):
+@app.route('/cards/list/<int:listId>')
+@app.route('/cards/list/<int:listId>/')
+def get_cards_by_list(listId):
+    cardsInList = []
     for card in CARDS:
         if listId == card['listId']:
-            if cardId == card['cardId']:
-                return jsonify(card)
-    return None
+            cardsInList.append(card)
+
+    return jsonify(cardsInList)
+
+@app.route('/list/<int:listId>/card/<int:cardId>', methods=['GET', 'PUT'])
+@app.route('/list/<int:listId>/card/<int:cardId>/', methods=['GET', 'PUT'])
+def handle_card(listId, cardId):
+    if request.method == 'PUT':
+        for card in CARDS:
+            if listId == card['listId']:
+                if cardId == card['cardId']:
+                    put_data = request.get_json()
+                    return None
+    else:
+        for card in CARDS:
+            if listId == card['listId']:
+                if cardId == card['cardId']:
+                    return jsonify(card)
+        return None
 
 @app.route('/addcard', methods=['POST'])
 @app.route('/addcard/', methods=['POST'])

@@ -11,7 +11,7 @@
         <input class="inputbox" type="inputbox" v-model="author" v-on:change="updateList">
 
         <div class="cards">
-            <ListFlashCards v-bind:listId="this.list.id"/>
+            <ListFlashCards v-bind:cards="cards" v-bind:listId="this.list.id" v-on:edit-card="updateCard"/>
         </div>
     </div>
 </template>
@@ -27,6 +27,7 @@ export default {
     },
     data() {
         return {
+            cards: [],
             id: this.$route.params.id,
             list: '',
             name: '',
@@ -34,6 +35,16 @@ export default {
         }
     },
     methods: {
+        getCards() {
+            const path = `http://localhost:5000/cards/list/${this.id}`;
+            axios.get(path)
+            .then((res) => {
+                this.cards = res.data;
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+        },
         getList() {
             this.id = this.$route.params.id;
 
@@ -60,10 +71,28 @@ export default {
             }
             // Send up to parent
             this.$emit('edit-list', updatedList);
+        },
+        updateCard(updatedCard) {
+            this.oldCard = this.cards.filter(card => updatedCard.cardId == card.cardId);
+            this.cards.pop(this.oldCard);
+            this.cards.push(updatedCard);
+
+            // const path = `http://localhost:5000/cards/${this.id}/`;
+
+            // axios.get(path)
+            // .then((res) => {
+            //     this.list = res.data;
+            //     this.name = this.list.name;
+            //     this.author = this.list.author;
+            // })
+            // .catch((error) => {
+            //     console.error(error);
+            // });
         }
     },
     created() {
         this.getList();
+        this.getCards();
     }
 }
 </script>
