@@ -42,7 +42,7 @@ CARDS = [
     },
     {
         'listId': 2,
-        'cardId': 3,
+        'cardId': 1,
         'author': 'John Smith',
         'term': 'entender',
         'description': 'saber algo',
