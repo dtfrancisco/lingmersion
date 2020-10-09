@@ -10,7 +10,7 @@
         </div>
         <input class="inputbox" type="inputbox" v-model="author" v-on:change="updateList">
 
-        <div class="cards">
+        <div v-if="showCards" class="cards">
             <ListFlashCards v-bind:cards="cards" v-bind:listId="this.list.id" v-on:edit-card="updateCard"/>
         </div>
     </div>
@@ -31,7 +31,8 @@ export default {
             id: this.$route.params.id,
             list: '',
             name: '',
-            author: ''
+            author: '',
+            showCards: false
         }
     },
     methods: {
@@ -40,6 +41,7 @@ export default {
             axios.get(path)
             .then((res) => {
                 this.cards = res.data;
+                this.showCards = true;
             })
             .catch((error) => {
                 console.error(error);
@@ -73,21 +75,32 @@ export default {
             this.$emit('edit-list', updatedList);
         },
         updateCard(updatedCard) {
-            this.oldCard = this.cards.filter(card => updatedCard.cardId == card.cardId);
-            this.cards.pop(this.oldCard);
-            this.cards.push(updatedCard);
+            var objIndex = this.cards.findIndex((card => card.cardId == updatedCard.cardId));
+            this.showCards = false;
+            //Update object's name property.
+            this.cards[objIndex] = updatedCard;
+            this.showCards = true;
+            // Can use either the updatedCard or oldCard's id since they have the same id
+            const path = `http://localhost:5000/list/${this.id}/card/${updatedCard.cardId}/`;
 
-            // const path = `http://localhost:5000/cards/${this.id}/`;
+            const payload = {
+                listId: this.cards[objIndex].listId,
+                cardId: this.cards[objIndex].cardId,
+                author: this.cards[objIndex].author,
+                term: this.cards[objIndex].term,
+                description: this.cards[objIndex].description,
+                language: this.cards[objIndex].language,
+                created: this.cards[objIndex].created,
+                modified: this.cards[objIndex].modified
+            };
 
-            // axios.get(path)
-            // .then((res) => {
-            //     this.list = res.data;
-            //     this.name = this.list.name;
-            //     this.author = this.list.author;
-            // })
-            // .catch((error) => {
-            //     console.error(error);
-            // });
+            axios.put(path, payload)
+            .then((res) => {
+                this.list = res.data;
+            })
+            .catch((error) => {
+                console.error(error);
+            });
         }
     },
     created() {

@@ -43,7 +43,7 @@ export default {
                 description: this.description,
                 language: this.card.language,
                 created: this.card.created,
-                modified: Date.now()
+                modified: new Date().toGMTString()
             }
             // Send up to parent
             this.$emit('edit-card', updatedCard);

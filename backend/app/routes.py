@@ -52,7 +52,9 @@ def handle_card(listId, cardId):
             if listId == card['listId']:
                 if cardId == card['cardId']:
                     put_data = request.get_json()
-                    return None
+                    CARDS.append(put_data)
+                    CARDS.remove(card)
+                    return jsonify({'data': put_data})
     else:
         for card in CARDS:
             if listId == card['listId']:
