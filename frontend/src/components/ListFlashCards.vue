@@ -1,7 +1,5 @@
 <template>
     <div class="container">
-        <router-link class="btn btn-primary mt-3 mb-3 mr-3" :to="{name: 'add card', params: { id: listId }}" >Create new card </router-link>
-        <router-link class="btn btn-primary mt-3 mb-3" :to="{name: 'review cards', params: { id: listId, cards: cards}}" >Review cards</router-link>
 
         <table class="table">
             <tr>
@@ -33,7 +31,7 @@ export default {
     components: {
         EditableFlashCard
     },
-    props: ["cards", "listId"],
+    props: ["cards"],
     methods: {
         editCard(updatedCard) {
             this.$emit('edit-card', updatedCard);

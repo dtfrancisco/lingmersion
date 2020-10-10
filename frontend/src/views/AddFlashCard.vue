@@ -2,6 +2,9 @@
     <div>
         <form @submit="addCard">
             <div>
+                <div class="alert alert-warning" role="alert">
+                    Term must be in {{this.language}}!
+                </div>
                 <div class="mt-1 mb-1">
                     Term
                 </div>
@@ -29,22 +32,26 @@ export default {
     data() {
         return {
             term: '',
-            description: ''
+            description: '',
+            id: this.$route.params.id,
+            language: this.$route.params.language
         }
     },
     methods: {
         addCard(e) {
             e.preventDefault(); //don't have form submit to a file
 
-            const path = 'http://localhost:5000/addcard/';
+            const path = `http://localhost:5000/list/${this.id}/addcard/`;
 
             const payload = {
-                id: this.$route.params.id,
-                author: 'sample',
+                id: this.id,
+                author: this.$route.params.author,
                 term: this.term,
                 description: this.description,
-                language: 'portuguese'
+                language: this.language,
             };
+
+            console.log(payload);
 
             axios.post(path, payload)
             .then(() => {

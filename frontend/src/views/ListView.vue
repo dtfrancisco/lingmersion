@@ -10,8 +10,13 @@
         </div>
         <input class="inputbox" type="inputbox" v-model="author" v-on:change="updateList">
 
+        <div>
+            <router-link class="btn btn-primary mt-3 mb-3 mr-3" :to="{name: 'add card', params: { id: id, author: author, language: language }}" >Create new card </router-link>
+            <router-link class="btn btn-primary mt-3 mb-3" :to="{name: 'review cards', params: { id: id, cards: cards}}" >Review cards</router-link>
+        </div>
+
         <div v-if="showCards" class="cards">
-            <ListFlashCards v-bind:cards="cards" v-bind:listId="this.list.id" v-on:edit-card="updateCard"/>
+            <ListFlashCards v-bind:cards="cards" v-on:edit-card="updateCard"/>
         </div>
     </div>
 </template>
@@ -32,6 +37,7 @@ export default {
             list: '',
             name: '',
             author: '',
+            language: '',
             showCards: false
         }
     },
@@ -57,6 +63,7 @@ export default {
                 this.list = res.data;
                 this.name = this.list.name;
                 this.author = this.list.author;
+                this.language = this.list.language
             })
             .catch((error) => {
                 console.error(error);
@@ -68,6 +75,7 @@ export default {
                 name: this.name,
                 author: this.author,
                 description: this.list.description,
+                language: this.list.language,
                 created: this.list.created,
                 modified: Date.now()
             }

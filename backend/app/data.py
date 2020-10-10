@@ -6,6 +6,7 @@ LISTS = [
         'name': 'List One',
         'author': 'Jane Doe',
         'description': 'My first list',
+        'language': 'portuguese',
         'created': date(2019, 4, 7),
         'modified': date(2019, 8, 13)
     },
@@ -14,6 +15,7 @@ LISTS = [
         'name': 'List Two',
         'author': 'John Smith',
         'description': 'Spanish vocabulary',
+        'language': 'spanish',
         'created': date(2018, 2, 28),
         'modified': date(2018, 7, 17)
     }

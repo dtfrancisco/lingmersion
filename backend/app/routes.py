@@ -1,6 +1,7 @@
 from app import app
 from flask import request, jsonify, Response
 from app.data import LISTS, CARDS
+from app.helpers import get_number_of_cards_in_list
 from datetime import date
 import requests
 import os
@@ -28,6 +29,7 @@ def add_list():
         'name': post_data.get('name'),
         'author': post_data.get('author'),
         'description':  post_data.get('description'),
+        'language': post_data.get('language'),
         'created': date.today(),
         'modified': date.today()
     }
@@ -62,15 +64,16 @@ def handle_card(listId, cardId):
                     return jsonify(card)
         return None
 
-@app.route('/addcard', methods=['POST'])
-@app.route('/addcard/', methods=['POST'])
-def add_card():
+@app.route('/list/<int:listId>/addcard', methods=['POST'])
+@app.route('/list/<int:listId>/addcard/', methods=['POST'])
+def add_card(listId):
     # TODO: Do input validation on card 1. listId must match actual list and names must match.
     # Is this necessary? 2. Verify created and modified dates
+    num_cards_in_list = get_number_of_cards_in_list(listId)
     post_data = request.get_json()
     card = {
-        'listId': post_data.get('id'),
-        'cardId': len(CARDS) + 1,
+        'listId': listId,
+        'cardId': num_cards_in_list + 1,
         'author': post_data.get('author'),
         'term': post_data.get('term'),
         'description':  post_data.get('description'),
