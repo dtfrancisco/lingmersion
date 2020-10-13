@@ -19,6 +19,13 @@
                 </div>
                 <input class="inputbox" type="inputbox" v-model="description" placeholder="Insert description here">
             </div>
+            <div>
+                <div class="mt-1 mb-1">
+                    Language
+                </div>
+                <input class="inputbox" type="inputbox" v-model="language" placeholder="Insert language here">
+            </div>
+
             <input type="submit" value="Submit" class="btn btn-primary mt-3">
         </form>
     </div>   
@@ -37,6 +44,7 @@ export default {
             name: '',
             author: '',
             description: '',
+            language: ''
         }
     },
     methods: {
@@ -49,6 +57,7 @@ export default {
                 name: this.name,
                 author: this.author,
                 description: this.description,
+                language: this.language
             };
 
             axios.post(path, payload)

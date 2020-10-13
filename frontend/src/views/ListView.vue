@@ -8,7 +8,12 @@
         <div class="mt-1 mb-1">
             Author
         </div>
-        <input class="inputbox" type="inputbox" v-model="author" v-on:change="updateList">
+        <input class="inputbox" type="inputbox" v-model="author" v-on:change="updateList" readonly>
+
+        <div class="mt-1 mb-1">
+            Description
+        </div>
+        <input class="inputbox" type="inputbox" v-model="description" v-on:change="updateList">
 
         <div>
             <router-link class="btn btn-primary mt-3 mb-3 mr-3" :to="{name: 'add card', params: { id: id, author: author, language: language }}" >Create new card </router-link>
@@ -37,6 +42,7 @@ export default {
             list: '',
             name: '',
             author: '',
+            description: '',
             language: '',
             showCards: false
         }
@@ -63,6 +69,7 @@ export default {
                 this.list = res.data;
                 this.name = this.list.name;
                 this.author = this.list.author;
+                this.description = this.list.description,
                 this.language = this.list.language
             })
             .catch((error) => {
