@@ -39,7 +39,7 @@ def handle_list(id):
                     LISTS[idx] = put_data
                     return jsonify({'data': put_data})
 
-                # Just return data normally if request method is
+                # Just return data normally if request method is GET
                 return jsonify(list)
     return None
 
@@ -56,20 +56,19 @@ def get_cards_by_list(listId):
 @app.route('/list/<int:listId>/card/<int:cardId>', methods=['GET', 'PUT'])
 @app.route('/list/<int:listId>/card/<int:cardId>/', methods=['GET', 'PUT'])
 def handle_card(listId, cardId):
-    if request.method == 'PUT':
-        for card in CARDS:
-            if listId == card['listId']:
-                if cardId == card['cardId']:
+    for card in CARDS:
+        if listId == card['listId']:
+            if cardId == card['cardId']:
+                if request.method == 'PUT':
                     put_data = request.get_json()
-                    CARDS.append(put_data)
-                    CARDS.remove(card)
+                    idx = CARDS.index(card)
+                    CARDS[idx] = put_data
                     return jsonify({'data': put_data})
-    else:
-        for card in CARDS:
-            if listId == card['listId']:
-                if cardId == card['cardId']:
-                    return jsonify(card)
-        return None
+
+                # Just return data normally if request method is GET
+                return jsonify(card)
+
+    return None
 
 @app.route('/list/<int:listId>/addcard', methods=['POST'])
 @app.route('/list/<int:listId>/addcard/', methods=['POST'])

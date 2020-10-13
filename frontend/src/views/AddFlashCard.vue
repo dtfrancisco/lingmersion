@@ -51,8 +51,6 @@ export default {
                 language: this.language,
             };
 
-            console.log(payload);
-
             axios.post(path, payload)
             .then(() => {
             })

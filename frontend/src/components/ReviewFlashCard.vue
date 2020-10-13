@@ -78,7 +78,6 @@ export default {
             }
         },
         getNextFlashCard(direction) {
-            console.log('hi', direction);
             if (direction == 'prev') {
                 this.$emit('fetch-new-review-flashcard', this.card.cardId - 1);
             }
