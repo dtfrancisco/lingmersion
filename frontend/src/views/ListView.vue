@@ -70,17 +70,25 @@ export default {
             });
         },
         updateList() {
-            const updatedList = {
+            const path = `http://localhost:5000/list/${this.id}/`;
+
+            const payload = {
                 id: this.list.id,
                 name: this.name,
                 author: this.author,
-                description: this.list.description,
+                description: this.description,
                 language: this.list.language,
                 created: this.list.created,
                 modified: Date.now()
             }
-            // Send up to parent
-            this.$emit('edit-list', updatedList);
+
+            axios.put(path, payload)
+            .then((res) => {
+                this.list = res.data;
+            })
+            .catch((error) => {
+                console.error(error);
+            });
         },
         updateCard(updatedCard) {
             var objIndex = this.cards.findIndex((card => card.cardId == updatedCard.cardId));

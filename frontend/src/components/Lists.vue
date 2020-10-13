@@ -11,7 +11,7 @@
             <div class="col-md-4 col-sm-4">
                 <h5>Recently Created Lists</h5>
                 <div v-bind:key="list.id" v-for="list in lists">
-                    <ListItem v-bind:list="list"/>
+                    <ListItems v-bind:list="list"/>
                 </div>
             </div>
         </div>
@@ -19,12 +19,12 @@
 </template> 
 
 <script>
-import ListItem from './ListItem';
+import ListItems from './ListItems';
 
 export default {
     name: "Lists",
     components: {
-        ListItem
+        ListItems
     },
     props: ["lists"]
     
