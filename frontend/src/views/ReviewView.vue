@@ -5,7 +5,7 @@
         </h3>
 
         <div v-if="currentCardLoaded" class="current_card">
-            <ReviewFlashCard v-bind:validNextCards="this.validNextCards" v-bind:card="currentCard" v-on:fetch-new-review-flashcard="fetchNewCard"/>
+            <ReviewFlashCard v-bind:key="this.currentCard['key']" v-bind:validNextCards="this.validNextCards" v-bind:cardIndex="this.cardIndex" v-bind:card="this.currentCard" v-on:fetch-new-review-flashcard="fetchNewCard"/>
         </div>
         <div class="cards">
             <ListFlashCards v-bind:cards="cards" v-bind:listId="this.list.id" v-on:edit-card="updateCard"/>
@@ -17,6 +17,7 @@
 import ReviewFlashCard from '../components/ReviewFlashCard';
 import ListFlashCards from '../components/ListFlashCards';
 import axios from 'axios';
+import Vue from 'vue';
 
 export default {
     name: "ReviewView",
@@ -27,14 +28,14 @@ export default {
     data() {
         return {
             cards: [],
-            currentCard: '', //Filled in by loadCurrentCardFromId method
+            currentCard: '', //Filled in by loadCurrentCardFromCardId method
             currentCardLoaded: false,
-            cardId: 1,
+            cardIndex: 1,
             id: this.$route.params.id,
             list: '',
             name: '',
             validNextCards: [false, false],
-            author: ''
+            author: '' 
         }
     },
     methods: {
@@ -43,9 +44,8 @@ export default {
             axios.get(path)
             .then((res) => {
                 this.cards = res.data;
-
+                this.loadCurrentCardFromCardId();
                 this.updateValidNextCards();
-
             })
             .catch((error) => {
                 console.error(error);
@@ -59,7 +59,7 @@ export default {
 
             axios.get(path)
             .then((res) => {
-                this.list = res.data;
+                this.list = res.data[0];
                 this.name = this.list.name;
                 this.author = this.list.author;
             })
@@ -74,42 +74,44 @@ export default {
                 author: this.author,
                 description: this.list.description,
                 created: this.list.created,
-                modified: Date.now()
             }
             // Send up to parent
             this.$emit('edit-list', updatedList);
         },
-        loadCurrentCardFromId() {
-            const path = `http://localhost:5000/list/${this.id}/card/${this.cardId}`;
+        loadCurrentCardFromCardId() {
+            this.currentCard = this.cards[this.cardIndex-1];
+            this.currentCard["key"] = this.currentCard["term"] + this.cardIndex
+            this.currentCardLoaded = true;
+            // const path = `http://localhost:5000/list/${this.id}/card/${this.cardId}`;
 
-            axios.get(path)
-            .then((res) => {
-                this.currentCard = res.data;
-                this.currentCardLoaded = true;
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+            // axios.get(path)
+            // .then((res) => {
+            //     this.currentCard = res.data;
+            //     this.currentCardLoaded = true;
+            // })
+            // .catch((error) => {
+            //     console.error(error);
+            // });
         },
-        fetchNewCard(newCardId) {
+        fetchNewCard(newCardIndex) {
             this.currentCardLoaded = false;
-            this.cardId = newCardId;
+            this.cardIndex = newCardIndex;
+            this.loadCurrentCardFromCardId();
             this.updateValidNextCards();
-            this.loadCurrentCardFromId();
         },
         updateValidNextCards() {
-            if (this.cardId == 1) {
-                this.validNextCards[0] = false;
+            if (this.cardIndex == 1) {
+                Vue.set(this.validNextCards, 0, false);
             }
-            else if (this.cardId > 1) {
-                this.validNextCards[0] = true;
+            else if (this.cardIndex > 1) {
+                Vue.set(this.validNextCards, 0, true);
             }
 
-            if (this.cardId == this.cards.length) {
-                this.validNextCards[1] = false;
+            if (this.cardIndex == this.cards.length) {
+                Vue.set(this.validNextCards, 1, false);
             }
             else {
-                this.validNextCards[1] = true;
+                Vue.set(this.validNextCards, 1, true);
             }
         },
         updateCard(updatedCard) {
@@ -133,7 +135,6 @@ export default {
     created() {
         this.getList();
         this.getCards();
-        this.loadCurrentCardFromId();
     }
 }
 

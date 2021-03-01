@@ -27,7 +27,7 @@ export default {
     name: 'ReviewFlashCard',
     components: {
     },
-    props: ["card", "validNextCards"],
+    props: ["card", "validNextCards", "cardIndex"],
     data() {
         return {
             side: 'front',
@@ -47,7 +47,6 @@ export default {
                 word: this.term,
                 language: this.card.language
             }
-
             const path = `http://localhost:5000/getaudio/${payload.word}/${payload.language}`;
 
             axios.get(path)
@@ -61,7 +60,7 @@ export default {
         },
         loadAudioTrack() {
             if (!this.audio_loaded) {
-                console.log('Loading audio track');
+                console.log('ReviewFlashCard- Loading audio track');
                 this.$refs.audio.pause();
                 this.$refs.audio.load();
                 this.audio_loaded = true;
@@ -79,10 +78,10 @@ export default {
         },
         getNextFlashCard(direction) {
             if (direction == 'prev') {
-                this.$emit('fetch-new-review-flashcard', this.card.cardId - 1);
+                this.$emit('fetch-new-review-flashcard', this.cardIndex - 1);
             }
             else {
-                this.$emit('fetch-new-review-flashcard', this.card.cardId + 1);
+                this.$emit('fetch-new-review-flashcard', this.cardIndex + 1);
             }
         }
     },

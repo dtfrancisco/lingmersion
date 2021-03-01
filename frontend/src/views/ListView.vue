@@ -66,7 +66,7 @@ export default {
 
             axios.get(path)
             .then((res) => {
-                this.list = res.data;
+                this.list = res.data[0];
                 this.name = this.list.name;
                 this.author = this.list.author;
                 this.description = this.list.description,

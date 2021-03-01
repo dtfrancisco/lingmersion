@@ -1,93 +1,111 @@
 from app import app
-from flask import request, jsonify, Response
-from app.data import LISTS, CARDS
-from app.helpers import get_number_of_cards_in_list
+from flask import request, jsonify, Response, g
+import psycopg2
+from app.helpers.frontend_helpers import *
+from app.helpers.database_helpers import *
 from datetime import date
 import requests
 import os
 from dotenv import load_dotenv
 
+@app.before_request
+def before_request():
+    DB_HOST = 'localhost'
+    DB_NAME = 'postgres'
+    DB_USER = 'postgres'
+    DB_PASS = 'admin'
+
+    conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST)
+    g.conn = conn
+
+@app.after_request
+def after_request(response):
+    g.conn.close()
+    return response
+
 @app.route('/lists')
 @app.route('/lists/')
 def get_lists():
-    return jsonify(LISTS)
+    properties = ('id', 'name', 'author', 'description', 'language', 'date_created', 'last_modified')
+    rows = fetch_rows_as_dict('SELECT * FROM lists ORDER BY created ASC;', properties)
+    print(rows)
+    return jsonify(rows)
 
 @app.route('/addlist', methods=['POST'])
 @app.route('/addlist/', methods=['POST'])
 def add_list():
-    post_data = request.get_json()
-    list = {
-        'id': len(LISTS) + 1,
-        'name': post_data.get('name'),
-        'author': post_data.get('author'),
-        'description':  post_data.get('description'),
-        'language': post_data.get('language'),
-        'created': date.today(),
-        'modified': date.today()
-    }
-    LISTS.append(list)
+    list = parse_list_info()
+    sql = """
+          INSERT INTO Lists (name, author, description, language) VALUES(%s, %s, %s, %s)
+          """
+    data = (list['name'], list['author'], list['description'], list['language'])
+    add_or_update_row(sql, data)
+
     return jsonify(list, 201) # Add get location to newly created post
 
 @app.route('/list/<int:id>', methods=['GET', 'PUT'])
 @app.route('/list/<int:id>/', methods=['GET', 'PUT'])
 def handle_list(id):
-    for list in LISTS:
-        if list['id'] == id:
-                if request.method == 'PUT':
-                    put_data = request.get_json()
-                    idx = LISTS.index(list)
-                    LISTS[idx] = put_data
-                    return jsonify({'data': put_data})
+    if request.method == 'PUT':
+        put_data = request.get_json()
+        list = parse_list_info()
+        sql = """UPDATE Lists
+                 SET name = %s, author = %s, description = %s, language = %s, last_modified = Now()
+                 WHERE id = %s
+              """
+        data = (list['name'], list['author'], list['description'], list['language'], id)
+        add_or_update_row(sql, data)
 
-                # Just return data normally if request method is GET
-                return jsonify(list)
-    return None
+        return jsonify({'data': put_data})
+
+    # Just return data normally if request method is GET
+    properties = ('id', 'name', 'author', 'description', 'language', 'date_created', 'last_modified')
+    rows = fetch_rows_as_dict(f'SELECT * FROM lists WHERE id = {id};', properties)
+    print(rows)
+    return jsonify(rows)
 
 @app.route('/cards/list/<int:listId>')
 @app.route('/cards/list/<int:listId>/')
 def get_cards_by_list(listId):
-    cardsInList = []
-    for card in CARDS:
-        if listId == card['listId']:
-            cardsInList.append(card)
-
-    return jsonify(cardsInList)
+    properties = ('id', 'listid', 'term', 'author', 'description', 'language', 'date_created', 'last_modified', 'name', 'listauthor', 'listdescription')
+    sql = f"""
+          SELECT cards.*, name, lists.author AS listauthor, lists.description AS listdescription FROM cards 
+          LEFT JOIN lists ON cards.listid = lists.id WHERE listid = {listId} ORDER BY created ASC;
+          """
+    rows = fetch_rows_as_dict(sql, properties)
+    print(rows)
+    return jsonify(rows)
 
 @app.route('/list/<int:listId>/card/<int:cardId>', methods=['GET', 'PUT'])
 @app.route('/list/<int:listId>/card/<int:cardId>/', methods=['GET', 'PUT'])
 def handle_card(listId, cardId):
-    for card in CARDS:
-        if listId == card['listId']:
-            if cardId == card['cardId']:
-                if request.method == 'PUT':
-                    put_data = request.get_json()
-                    idx = CARDS.index(card)
-                    CARDS[idx] = put_data
-                    return jsonify({'data': put_data})
+    if request.method == 'PUT':
+        card = parse_card_info()
+        sql = """UPDATE Cards
+                 SET author = %s, term = %s, description = %s, language = %s, last_modified = Now()
+                 WHERE listid = %s
+              """
+        data = (card['author'], card['term'], card['description'], card['language'], listId)
+        add_or_update_row(sql, data)
+        return jsonify({'data': data})
 
-                # Just return data normally if request method is GET
-                return jsonify(card)
-
-    return None
+    # TODO- Just return data normally if request method is GET
+    properties = ('id', 'listid', 'term', 'author', 'description', 'language', 'date_created', 'last_modified')
+    rows = fetch_rows_as_dict(f'SELECT * FROM cards WHERE listid = {listId} ORDER BY created ASC OFFSET {cardId};', properties)
+    print("Bondi", rows)
+    return jsonify(rows)
 
 @app.route('/list/<int:listId>/addcard', methods=['POST'])
 @app.route('/list/<int:listId>/addcard/', methods=['POST'])
 def add_card(listId):
-    # TODO: Do input validation on card 1. listId must match actual list and names must match.
-    # Is this necessary? 2. Verify created and modified dates
-    num_cards_in_list = get_number_of_cards_in_list(listId)
-    post_data = request.get_json()
-    card = {
-        'listId': listId,
-        'cardId': num_cards_in_list + 1,
-        'author': post_data.get('author'),
-        'term': post_data.get('term'),
-        'description':  post_data.get('description'),
-        'language': post_data.get('language'),
-        'created': date.today(),
-        'modified': date.today()
-    }
-    CARDS.append(card)
+    # TODO: 1. listId must match actual list
+    card = parse_card_info()
+    sql = """
+          INSERT INTO Cards (listId, term, author, description, language) VALUES(%s, %s, %s, %s, %s)
+          """
+    data = (listId, card['term'], card['author'], card['description'], card['language'])
+    add_or_update_row(sql, data)
+
     return jsonify(card, 201) # Add get location to newly created post
 
 @app.route('/getaudio/<string:word>/<string:language>')
@@ -102,7 +120,7 @@ def get_audio(word, language):
 
     load_dotenv()
     api_key = os.environ.get('FORVO_API_KEY')
-
+    print(f"Language {language} and word {word}")
     forvo_req_path = f"https://apifree.forvo.com/action/word-pronunciations/format/json/word/{word}/id_lang_speak/{id}/order/rate-desc/limit/1/key/{api_key}/" 
     r = requests.get(forvo_req_path)
     audio_path = r.json()['items'][0]['pathmp3']
