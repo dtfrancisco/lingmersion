@@ -133,5 +133,8 @@ def get_audio(word, language):
     print(f"Language {language} and word {word}")
     forvo_req_path = f"https://apifree.forvo.com/action/word-pronunciations/format/json/word/{word}/id_lang_speak/{id}/order/rate-desc/limit/1/key/{api_key}/" 
     r = requests.get(forvo_req_path)
-    audio_path = r.json()['items'][0]['pathmp3']
-    return(jsonify(audio_path))
+    try:
+        audio_path = r.json()['items'][0]['pathmp3']
+        return(jsonify(audio_path))
+    except IndexError:
+        return "Word doesn't exist", 404

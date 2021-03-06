@@ -1,10 +1,16 @@
 <template>
     <div>
-        <form @submit="addCard">
+        <form @submit="processForm">
             <div>
                 <div class="alert alert-warning" role="alert">
                     Term must be in {{this.language}}!
                 </div>
+                <p class="errors" v-if="errors.length">
+                    <b>Please correct the following error(s):</b>
+                    <ul>
+                        <li v-bind:key="error" v-for="error in errors">{{ error }}</li>
+                    </ul>
+                </p>
                 <div class="mt-1 mb-1">
                     Term
                 </div>
@@ -34,13 +40,50 @@ export default {
             term: '',
             description: '',
             id: this.$route.params.id,
-            language: this.$route.params.language
+            language: this.$route.params.language,
+            errors: []
         }
     },
     methods: {
-        addCard(e) {
+        processForm(e) {
             e.preventDefault(); //don't have form submit to a file
 
+            this.errors = [];
+
+            if (!this.term || !this.description) {
+
+                if (!this.term) {
+                    this.errors.push('Term required.');
+                }
+                if (!this.description) {
+                    this.errors.push('Description required.');
+                }
+                return false;
+            }
+
+            this.validateTerm();
+        },
+        validateTerm() {
+            const payload = {
+                word: this.term,
+                language: this.language
+            }
+
+            const path = `http://localhost:5000/getaudio/${payload.word}/${payload.language}`;
+
+            axios.get(path)
+              .then(() => {
+                  this.addCard();
+              })
+              .catch((error) => {
+                console.error("No word found at ", error);
+                this.errors.push('Term is not valid. Please enter a valid term.');
+                return false;
+              });
+
+            return true;
+        },
+        addCard() {
             const path = `http://localhost:5000/list/${this.id}/addcard/`;
 
             const payload = {
@@ -59,11 +102,14 @@ export default {
             });
 
             this.$router.push({name: 'list', params: { id: this.$route.params.id }} );
+
         }
     }
 }
 </script>
 
 <style scoped>
-
+.errors {
+    color: red;
+}
 </style>
