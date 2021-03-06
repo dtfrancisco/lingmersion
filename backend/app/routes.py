@@ -108,6 +108,16 @@ def add_card(listId):
 
     return jsonify(card, 201) # Add get location to newly created post
 
+@app.route('/languages')
+@app.route('/languages/')
+def get_languages():
+    languages = [
+      { "name": "english", "id": 39 },
+      { "name": "spanish", "id": 41 },
+      { "name": "portuguese", "id": 133 },
+    ]
+    return jsonify(languages)
+
 @app.route('/getaudio/<string:word>/<string:language>')
 @app.route('/getaudio/<string:word>/<string:language>/')
 def get_audio(word, language):
