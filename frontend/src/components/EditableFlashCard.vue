@@ -36,14 +36,10 @@ export default {
     methods: {
         updateCard() {
             const updatedCard = {
-                listId: this.card.listId,
-                cardId: this.card.cardId,
-                author: this.card.author,
+                cardId: this.card.id,
                 term: this.term,
                 description: this.description,
-                language: this.card.language,
-                created: this.card.created,
-                modified: new Date().toGMTString()
+                last_modified: new Date().toGMTString()
             }
             // Send up to parent
             this.$emit('edit-card', updatedCard);

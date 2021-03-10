@@ -29,6 +29,7 @@
 <script>
 import ListFlashCards from '../components/ListFlashCards';
 import axios from 'axios';
+import Vue from 'vue';
 
 export default {
     name: "ListView",
@@ -98,23 +99,24 @@ export default {
             });
         },
         updateCard(updatedCard) {
-            var objIndex = this.cards.findIndex((card => card.cardId == updatedCard.cardId));
+            var objIndex = this.cards.findIndex((card => card.id == updatedCard.cardId));
             this.showCards = false;
             //Update object's name property.
-            this.cards[objIndex] = updatedCard;
+            let newCard = this.cards[objIndex];
+            newCard["term"] = updatedCard["term"];
+            newCard["description"] = updatedCard["description"];
+            newCard["last_modified"] = updatedCard["last_modified"];
+
+            Vue.set(this.cards, objIndex, newCard);
             this.showCards = true;
             // Can use either the updatedCard or oldCard's id since they have the same id
             const path = `http://localhost:5000/list/${this.id}/card/${updatedCard.cardId}/`;
 
             const payload = {
-                listId: this.cards[objIndex].listId,
-                cardId: this.cards[objIndex].cardId,
                 author: this.cards[objIndex].author,
                 term: this.cards[objIndex].term,
                 description: this.cards[objIndex].description,
                 language: this.cards[objIndex].language,
-                created: this.cards[objIndex].created,
-                modified: this.cards[objIndex].modified
             };
 
             axios.put(path, payload)
@@ -134,5 +136,8 @@ export default {
 </script>
 
 <style scoped>
-
+input:read-only {
+  background-color: #DCDCDC;
+  cursor: not-allowed;
+}
 </style>

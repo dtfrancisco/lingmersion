@@ -83,9 +83,9 @@ def handle_card(listId, cardId):
         card = parse_card_info()
         sql = """UPDATE Cards
                  SET author = %s, term = %s, description = %s, language = %s, last_modified = Now()
-                 WHERE listid = %s
+                 WHERE listid = %s AND id = %s
               """
-        data = (card['author'], card['term'], card['description'], card['language'], listId)
+        data = (card['author'], card['term'], card['description'], card['language'], listId, cardId)
         add_or_update_row(sql, data)
         return jsonify({'data': data})
 
