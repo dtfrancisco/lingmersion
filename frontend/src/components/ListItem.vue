@@ -1,14 +1,12 @@
 <template>
     <div>
-        <router-link :to="{name: 'list', params: { id: list.id, list: list }}" >
-            <p>
-                {{list.name}}
-                by {{list.author}}
-            </p>
-            <p>
-                {{list.description}}
-            </p>
-        </router-link>
+        <p>
+            {{list.name}}
+            by {{list.author}}
+        </p>
+        <p>
+            {{list.description}}
+        </p>
     </div>
 </template>
 

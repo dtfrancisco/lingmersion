@@ -1,7 +1,7 @@
 <template>
     <div class="container">
-        <router-link class="btn btn-primary mt-3 mb-3" :to="{name: 'add list'}" >Create new list </router-link>
-        <div class="row">
+        <router-link class="btn btn-primary mt-4 mb-3" :to="{name: 'add list'}" >Create new list </router-link>
+        <div class="row mt-4">
             <div class="col-md-4 col-sm-4">
                 <h5>Your Lists</h5>
             </div>
@@ -11,7 +11,7 @@
             <div class="col-md-4 col-sm-4">
                 <h5>Recently Created Lists</h5>
                 <div v-bind:key="list.id" v-for="list in lists">
-                    <ListItem v-bind:list="list"/>
+                    <ListItems v-bind:list="list"/>
                 </div>
             </div>
         </div>
@@ -19,12 +19,12 @@
 </template> 
 
 <script>
-import ListItem from './ListItem';
+import ListItems from './ListItems';
 
 export default {
     name: "Lists",
     components: {
-        ListItem
+        ListItems
     },
     props: ["lists"]
     

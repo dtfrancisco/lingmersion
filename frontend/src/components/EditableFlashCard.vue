@@ -3,7 +3,7 @@
         <td>
             <input class="inputbox" type="inputbox" v-model="term" v-on:change="updateCard">
             <div>
-                <audio controls v-on:mouseover="loadAudioTrack" ref="audio">
+                <audio controls v-on:mouseenter.once="loadAudioTrack" ref="audio">
                     <source v-bind:src ="audio" type="audio/mp3"/>
                     Play audio
                 </audio>
@@ -36,14 +36,10 @@ export default {
     methods: {
         updateCard() {
             const updatedCard = {
-                listId: this.card.listId,
-                cardId: this.card.cardId,
-                author: this.card.author,
+                cardId: this.card.id,
                 term: this.term,
                 description: this.description,
-                language: this.card.language,
-                created: this.card.created,
-                modified: Date.now()
+                last_modified: new Date().toGMTString()
             }
             // Send up to parent
             this.$emit('edit-card', updatedCard);
