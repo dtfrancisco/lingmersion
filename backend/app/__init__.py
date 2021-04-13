@@ -4,6 +4,7 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 app.config.from_object(Config)
+app.url_map.strict_slashes = False
 
 CORS(app, resources={r'/*': {'origins': '*'}})
 

@@ -23,48 +23,51 @@ def after_request(response):
     g.conn.close()
     return response
 
-@app.route('/lists')
 @app.route('/lists/')
 def get_lists():
     properties = ('id', 'name', 'author', 'description', 'language', 'date_created', 'last_modified')
     rows = fetch_rows_as_dict('SELECT * FROM lists ORDER BY created ASC;', properties)
-    print(rows)
     return jsonify(rows)
 
-@app.route('/addlist', methods=['POST'])
 @app.route('/addlist/', methods=['POST'])
 def add_list():
     list = parse_list_info()
+
+    if not list:
+        return "Language provided does not exist", 404
+
     sql = """
           INSERT INTO Lists (name, author, description, language) VALUES(%s, %s, %s, %s)
           """
     data = (list['name'], list['author'], list['description'], list['language'])
     add_or_update_row(sql, data)
 
-    return jsonify(list, 201) # Add get location to newly created post
+    return jsonify(list), 201
 
-@app.route('/list/<int:id>', methods=['GET', 'PUT'])
 @app.route('/list/<int:id>/', methods=['GET', 'PUT'])
 def handle_list(id):
+    properties = ('id', 'name', 'author', 'description', 'language', 'date_created', 'last_modified')
+    rows = fetch_rows_as_dict(f'SELECT * FROM lists WHERE id = {id};', properties)
+    if not rows:
+        return "List doesn't exist", 404 
+
     if request.method == 'PUT':
-        put_data = request.get_json()
         list = parse_list_info()
+
+        if not list:
+            return "Language provided does not exist", 404
+
         sql = """UPDATE Lists
                  SET name = %s, author = %s, description = %s, language = %s, last_modified = Now()
                  WHERE id = %s
               """
         data = (list['name'], list['author'], list['description'], list['language'], id)
         add_or_update_row(sql, data)
-
-        return jsonify({'data': put_data})
+        return '', 204
 
     # Just return data normally if request method is GET
-    properties = ('id', 'name', 'author', 'description', 'language', 'date_created', 'last_modified')
-    rows = fetch_rows_as_dict(f'SELECT * FROM lists WHERE id = {id};', properties)
-    print(rows)
     return jsonify(rows)
 
-@app.route('/cards/list/<int:listId>')
 @app.route('/cards/list/<int:listId>/')
 def get_cards_by_list(listId):
     properties = ('id', 'listid', 'term', 'author', 'description', 'language', 'date_created', 'last_modified', 'name', 'listauthor', 'listdescription')
@@ -73,68 +76,93 @@ def get_cards_by_list(listId):
           LEFT JOIN lists ON cards.listid = lists.id WHERE listid = {listId} ORDER BY created ASC;
           """
     rows = fetch_rows_as_dict(sql, properties)
-    print(rows)
     return jsonify(rows)
 
-@app.route('/list/<int:listId>/card/<int:cardId>', methods=['GET', 'PUT'])
 @app.route('/list/<int:listId>/card/<int:cardId>/', methods=['GET', 'PUT'])
 def handle_card(listId, cardId):
+    properties = ('id', 'listid', 'term', 'author', 'description', 'language', 'date_created', 'last_modified')
+    row = fetch_rows_as_dict(f'SELECT * FROM cards WHERE listid = {listId} ORDER BY created ASC OFFSET {cardId - 1} LIMIT 1;', properties)
+    if not row:
+        return "Card doesn't exist", 404 
+
     if request.method == 'PUT':
         card = parse_card_info()
+
+        # Check if a valid, existing language was provided
+        if not card:
+            return "Language provided does not exist", 404
+
         sql = """UPDATE Cards
                  SET author = %s, term = %s, description = %s, language = %s, last_modified = Now()
                  WHERE listid = %s AND id = %s
               """
         data = (card['author'], card['term'], card['description'], card['language'], listId, cardId)
         add_or_update_row(sql, data)
-        return jsonify({'data': data})
+        return '', 204
 
-    # TODO- Just return data normally if request method is GET
-    properties = ('id', 'listid', 'term', 'author', 'description', 'language', 'date_created', 'last_modified')
-    rows = fetch_rows_as_dict(f'SELECT * FROM cards WHERE listid = {listId} ORDER BY created ASC OFFSET {cardId};', properties)
-    print("Bondi", rows)
-    return jsonify(rows)
+    # Just return data normally if request method is GET
+    return jsonify(row)
 
-@app.route('/list/<int:listId>/addcard', methods=['POST'])
 @app.route('/list/<int:listId>/addcard/', methods=['POST'])
 def add_card(listId):
-    # TODO: 1. listId must match actual list
+    # Check if listId provided exists
+    list_resp = handle_list(listId)
+    if list_resp == ("List doesn't exist", 404):
+        return "List doesn't exist", 404
+
     card = parse_card_info()
+
+    # Check if a valid, existing language was provided
+    if not card:
+        return "Language provided does not exist", 404
+
+    audio_resp = get_audio(card["term"], card["language"])
+
+    # Check to see if term exists in the language
+    try:
+        audio_resp.data
+    except AttributeError:
+        return f"Word doesn't exist in: {card['language']}", 404
+
+    # check if list language matches term's language
+    list_info = handle_list(listId)
+    if card["language"].encode('utf-8') not in list_info.data:
+        return "Language provided does not match list's language", 404
+
     sql = """
           INSERT INTO Cards (listId, term, author, description, language) VALUES(%s, %s, %s, %s, %s)
           """
     data = (listId, card['term'], card['author'], card['description'], card['language'])
     add_or_update_row(sql, data)
 
-    return jsonify(card, 201) # Add get location to newly created post
+    return jsonify(card), 201
 
-@app.route('/languages')
 @app.route('/languages/')
 def get_languages():
     languages = [
-      { "name": "english", "id": 39 },
-      { "name": "spanish", "id": 41 },
-      { "name": "portuguese", "id": 133 },
+      { "name": "english", "lang_code": "en" },
+      { "name": "spanish", "lang_code": "es" },
+      { "name": "french", "lang_code": "fr" },
+      { "name": "portuguese", "lang_code": "pt" },
     ]
     return jsonify(languages)
 
-@app.route('/getaudio/<string:word>/<string:language>')
-@app.route('/getaudio/<string:word>/<string:language>/')
+@app.route('/audio/<string:word>/<string:language>/')
 def get_audio(word, language):
-    languages = {
-        "english": 39,
-        "spanish": 41,
-        "portuguese": 133
+    language_codes = {
+        "english": "en",
+        "spanish": "es",
+        "portuguese": "pt"
     }
-    id = languages[language]
+    lang_code = language_codes[language]
 
     load_dotenv()
     api_key = os.environ.get('FORVO_API_KEY')
     print(f"Language {language} and word {word}")
-    forvo_req_path = f"https://apifree.forvo.com/action/word-pronunciations/format/json/word/{word}/id_lang_speak/{id}/order/rate-desc/limit/1/key/{api_key}/" 
+    forvo_req_path = f"https://apifree.forvo.com/key/{api_key}/format/json/action/word-pronunciations/word/{word}/language/{lang_code}/order/rate-desc/limit/1"
     r = requests.get(forvo_req_path)
     try:
         audio_path = r.json()['items'][0]['pathmp3']
-        return(jsonify(audio_path))
+        return jsonify(audio_path)
     except IndexError:
-        return "Word doesn't exist", 404
+        return f"Word doesn't exist in: {language}", 404
